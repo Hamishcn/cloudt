@@ -98,7 +98,7 @@ Service_ct(){
 		chkconfig --add cloudt
 		chkconfig cloudt on
 	else
-		if ! wget --no-check-certificate "https://gist.githubusercontent.com/najashark/b011982b212c99e2cac479cda7084d81/raw/abf853208b64ee5cff5c2cfaeefeb574b61b78c6/cloudt_debian" -O /etc/init.d/cloudt; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/aymjnd/cloudt/master/cloudt_debian" -O /etc/init.d/cloudt; then
 			echo -e "${Error} Cloud Torrent service management script download failed !" && exit 1
 		fi
 		chmod +x /etc/init.d/cloudt
