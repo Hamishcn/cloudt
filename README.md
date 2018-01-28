@@ -10,5 +10,5 @@ fork from https://github.com/ToyoDAdoubi/doubi/ and translated to english
 Installation:
 
 ```bash
-wget -N --no-check-certificate https://gist.githubusercontent.com/najashark/a0025e2a1962b40f0dcf0c8f2447cf69/raw/003899556a6a0363dd93b63a54e874957dc7c47b/cloudt.sh && chmod +x cloudt.sh && bash cloudt.sh
+wget -N --no-check-certificate https://raw.githubusercontent.com/aymjnd/cloudt/master/cloudt.sh && chmod +x cloudt.sh && bash cloudt.sh
 ```
