@@ -126,6 +126,7 @@ host = ${ct_host}
 port = ${ct_port}
 user = ${ct_user}
 passwd = ${ct_passwd}
+title = ${ct_title}
 EOF
 }
 Read_config(){
@@ -134,6 +135,7 @@ Read_config(){
 	port=`cat ${ct_conf}|grep "port = "|awk -F "port = " '{print $NF}'`
 	user=`cat ${ct_conf}|grep "user = "|awk -F "user = " '{print $NF}'`
 	passwd=`cat ${ct_conf}|grep "passwd = "|awk -F "passwd = " '{print $NF}'`
+    title=`cat ${ct_conf}|grep "title = "|awk -F "title = " '{print $NF}'`
 }
 Set_host(){
 	echo -e "Please input Cloud Torrent monitoring domain name or IP (when you want to bind the domain name, remember to do a good job of domain name resolution, currently only supports http:// access, do not write http:// write domain name!)"
@@ -179,6 +181,14 @@ Set_user(){
 	echo -e "	Password : ${Red_background_prefix} ${ct_passwd} ${Font_color_suffix}"
 	echo "========================" && echo
 }
+Set_title(){
+	echo "Please enter your Cloud Torrent title"
+	stty erase '^H' && read -p "(Default titl: alphaREKT):" ct_title
+	[[ -z "${ct_title}" ]] && ct_title="alphaREKT"
+	echo && echo "========================"
+	echo -e "	Title : ${Red_background_prefix} ${ct_title} ${Font_color_suffix}"
+	echo "========================" && echo
+}
 Set_conf(){
 	Set_host
 	Set_port
@@ -194,6 +204,7 @@ Set_ct(){
 	check_installed_status
 	check_sys
 	check_pid
+    Set_title
 	Set_conf
 	Read_config
 	Del_iptables
@@ -302,6 +313,7 @@ View_ct(){
 		clear && echo "————————————————" && echo
 		echo -e " Your Cloud Torrent information :" && echo
 		echo -e " Address\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
+        echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
 		echo && echo "————————————————"
 	else
 		clear && echo "————————————————" && echo
@@ -309,6 +321,7 @@ View_ct(){
 		echo -e " Address\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
 		echo -e " Username\t: ${Green_font_prefix}${user}${Font_color_suffix}"
 		echo -e " Password\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
+        echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
 		echo && echo "————————————————"
 	fi
 }
