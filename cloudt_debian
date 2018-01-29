@@ -37,6 +37,7 @@ read_config(){
 	port=`cat ${CONF}|grep "port = "|awk -F "port = " '{print $NF}'`
 	user=`cat ${CONF}|grep "user = "|awk -F "user = " '{print $NF}'`
 	passwd=`cat ${CONF}|grep "passwd = "|awk -F "passwd = " '{print $NF}'`
+    title=`cat ${CONF}|grep "title = "|awk -F "title = " '{print $NF}'`
 }
 View_User(){
 	if [[ "${host}" == "0.0.0.0" ]]; then
@@ -60,6 +61,7 @@ View_User(){
 		clear && echo "————————————————" && echo
 		echo -e " Your Cloud Torrent Information :" && echo
 		echo -e " Address\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
+        echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
 		echo && echo "————————————————"
 	else
 		clear && echo "————————————————" && echo
@@ -67,6 +69,7 @@ View_User(){
 		echo -e " Address\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
 		echo -e " Username\t: ${Green_font_prefix}${user}${Font_color_suffix}"
 		echo -e " Password\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
+        echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
 		echo && echo "————————————————"
 	fi
 }
@@ -79,9 +82,9 @@ do_start(){
 		cd ${FILE}
 		echo -e "${Info} $NAME in startup..."
 		if [[ -z ${user} ]]; then
-			./cloud-torrent -t "Cloud Torrent - DOUBI" -h "${host}" -p ${port} -l >> "${LOG}" 2>&1 &
+			./cloud-torrent -t "$title" -h "${host}" -p ${port} -l >> "${LOG}" 2>&1 &
 		else
-			./cloud-torrent -t "Cloud Torrent - DOUBI" -h "${host}" -p ${port} -l -a "${user}:${passwd}" >> "${LOG}" 2>&1 &
+			./cloud-torrent -t "$title" -h "${host}" -p ${port} -l -a "${user}:${passwd}" >> "${LOG}" 2>&1 &
 		fi
 		sleep 2s
 		check_running
