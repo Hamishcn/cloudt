@@ -135,14 +135,14 @@ Read_config(){
 	port=`cat ${ct_conf}|grep "port = "|awk -F "port = " '{print $NF}'`
 	user=`cat ${ct_conf}|grep "user = "|awk -F "user = " '{print $NF}'`
 	passwd=`cat ${ct_conf}|grep "passwd = "|awk -F "passwd = " '{print $NF}'`
-    title=`cat ${ct_conf}|grep "title = "|awk -F "title = " '{print $NF}'`
+	title=`cat ${ct_conf}|grep "title = "|awk -F "title = " '{print $NF}'`
 }
 Set_host(){
 	echo -e "Please input Cloud Torrent monitoring domain name or IP (when you want to bind the domain name, remember to do a good job of domain name resolution, currently only supports http:// access, do not write http:// write domain name!)"
 	stty erase '^H' && read -p "(Default: 0.0.0.0 Monitor all IPs on the card):" ct_host
 	[[ -z "${ct_host}" ]] && ct_host="0.0.0.0"
 	echo && echo "========================"
-	echo -e "	主机 : ${Red_background_prefix} ${ct_host} ${Font_color_suffix}"
+	echo -e "	HOST : ${Red_background_prefix} ${ct_host} ${Font_color_suffix}"
 	echo "========================" && echo
 }
 Set_port(){
@@ -204,7 +204,6 @@ Set_ct(){
 	check_installed_status
 	check_sys
 	check_pid
-    Set_title
 	Set_conf
 	Read_config
 	Del_iptables
@@ -218,6 +217,8 @@ Install_ct(){
 	check_sys
 	echo -e "${Info} Start setting user config ..."
 	Set_conf
+	echo -e "${Info} Start setting Title config ..."
+	Set_title
 	echo -e "${Info} Start installing / configuring dependencies ..."
 	Installation_dependency
 	echo -e "${Info} Start testing the latest version ..."
@@ -313,7 +314,7 @@ View_ct(){
 		clear && echo "————————————————" && echo
 		echo -e " Your Cloud Torrent information :" && echo
 		echo -e " Address\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
-        echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
+		echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
 		echo && echo "————————————————"
 	else
 		clear && echo "————————————————" && echo
@@ -321,7 +322,7 @@ View_ct(){
 		echo -e " Address\t: ${Green_font_prefix}http://${host}${port}${Font_color_suffix}"
 		echo -e " Username\t: ${Green_font_prefix}${user}${Font_color_suffix}"
 		echo -e " Password\t: ${Green_font_prefix}${passwd}${Font_color_suffix}"
-        echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
+		echo -e " Title\t: ${Green_font_prefix}${title}${Font_color_suffix}"
 		echo && echo "————————————————"
 	fi
 }
