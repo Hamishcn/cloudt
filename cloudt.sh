@@ -359,6 +359,8 @@ Set_iptables(){
 		chmod +x /etc/network/if-pre-up.d/iptables
 	fi
 }
+mkdir -p /usr/local/cloudtorrent/certs/
+echo -e "Please put your ssl privkey and certs in /usr/local/cloudtorrent/certs/"
 echo && echo -e "Please enter a number to select the option
 
  ${Green_font_prefix}1.${Font_color_suffix} Install Cloud Torrent
