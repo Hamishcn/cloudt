@@ -360,7 +360,7 @@ Set_iptables(){
 	fi
 }
 mkdir -p /usr/local/cloudtorrent/certs/
-echo -e "Please put your ssl privkey and certs in /usr/local/cloudtorrent/certs/"
+echo -e "${Red_background_prefix}Please put your ssl privkey and certs in /usr/local/cloudtorrent/certs/${Font_color_suffix}"
 echo && echo -e "Please enter a number to select the option
 
  ${Green_font_prefix}1.${Font_color_suffix} Install Cloud Torrent
