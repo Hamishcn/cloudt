@@ -38,6 +38,8 @@ read_config(){
 	user=`cat ${CONF}|grep "user = "|awk -F "user = " '{print $NF}'`
 	passwd=`cat ${CONF}|grep "passwd = "|awk -F "passwd = " '{print $NF}'`
 	title=`cat ${CONF}|grep "title = "|awk -F "title = " '{print $NF}'`
+	key="/usr/local/cloudtorrent/privkey.pem"
+	cert="/usr/local/cloudtorrent/fullchain.pem"
 }
 View_User(){
 	if [[ "${host}" == "0.0.0.0" ]]; then
@@ -84,7 +86,7 @@ do_start(){
 		if [[ -z ${user} ]]; then
 			./cloud-torrent -t "$title" -h "${host}" -p ${port} -l >> "${LOG}" 2>&1 &
 		else
-			./cloud-torrent -t "$title" -h "${host}" -p ${port} -l -a "${user}:${passwd}" >> "${LOG}" 2>&1 &
+			./cloud-torrent -t "$title" -h "${host}" -p ${port} -k "${key} -r ${cert}"-l -a "${user}:${passwd}" >> "${LOG}" 2>&1 &
 		fi
 		sleep 2s
 		check_running
