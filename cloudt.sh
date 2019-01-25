@@ -5,12 +5,13 @@ export PATH
 #=================================================
 #	System Required: CentOS/Debian/Ubuntu
 #	Description: Cloud Torrent
-#	Version: 1.2.2
+#	Version: 1.2.5
 #	Author: Toyo
 #	Translate: najashark
 #	Blog: https://doub.io/wlzy-12/
 #=================================================
 
+sh_ver="1.2.5"
 file="/usr/local/cloudtorrent"
 ct_file="/usr/local/cloudtorrent/cloud-torrent"
 dl_file="/usr/local/cloudtorrent/downloads"
@@ -24,6 +25,9 @@ Info="${Green_font_prefix}[INFO]${Font_color_suffix}"
 Error="${Red_font_prefix}[ERR]${Font_color_suffix}"
 Tip="${Green_font_prefix}[TIP]${Font_color_suffix}"
 
+check_root(){
+	[[ $EUID != 0 ]] && echo -e "${Error} The current non-ROOT account (or no ROOT permission), can not continue to operate, please replace the ROOT account or use ${Green_background_prefix}sudo su${Font_color_suffix} The command obtains the temporary ROOT permission (you may be prompted to enter the password of the current account after execution)." && exit 1
+}
 #Check system
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
@@ -50,10 +54,10 @@ check_pid(){
 	PID=$(ps -ef | grep cloud-torrent | grep -v grep | awk '{print $2}')
 }
 check_new_ver(){
-	ct_new_ver=$(wget --no-check-certificate -qO- https://github.com/jpillora/cloud-torrent/releases/latest | grep "<title>" | sed -r 's/.*Release (.+) · jpillora.*/\1/')
+	ct_new_ver=$(wget --no-check-certificate -qO- -t2 -T3 https://api.github.com/repos/jpillora/cloud-torrent/releases| grep "tag_name"| head -n 1| awk -F ":" '{print $2}'| sed 's/\"//g;s/,//g;s/ //g;s/v//g')
 	if [[ -z ${ct_new_ver} ]]; then
 		echo -e "${Error} Cloud Torrent Failed to get the latest version, please manually get the latest version number[ https://github.com/jpillora/cloud-torrent/releases ]"
-		stty erase '^H' && read -p "Please enter the version number [format x.x.xx, as in 0.8.21 ] :" ct_new_ver
+		read -e -p "Please enter the version number [format x.x.xx, as in 0.8.21 ] :" ct_new_ver
 		[[ -z "${ct_new_ver}" ]] && echo "Cancel..." && exit 1
 	else
 		echo -e "${Info} Cloud Torrent latest version is ${ct_new_ver}"
@@ -63,7 +67,7 @@ check_ver_comparison(){
 	ct_now_ver=$(${ct_file} --version)
 	if [[ ${ct_now_ver} != ${ct_new_ver} ]]; then
 		echo -e "${Info} There was a new version of Cloud Torrent [ ${ct_new_ver} ]"
-		stty erase '^H' && read -p "Want to update ? [Y/n] :" yn
+		read -e -p "Want to update ? [Y/n] :" yn
 		[ -z "${yn}" ] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
 			check_pid
@@ -80,8 +84,10 @@ Download_ct(){
 	cd ${file}
 	if [[ ${bit} == "x86_64" ]]; then
 		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_amd64.gz"
-	else
+	elif [[ ${bit} == "i386" || ${bit} == "i686" ]]; then
 		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_386.gz"
+	else
+		wget --no-check-certificate -O cloud-torrent.gz "https://github.com/jpillora/cloud-torrent/releases/download/${ct_new_ver}/cloud-torrent_linux_arm.gz"
 	fi
 	[[ ! -e "cloud-torrent.gz" ]] && echo -e "${Error} Cloud Torrent fail to download !" && exit 1
 	gzip -d cloud-torrent.gz
@@ -91,7 +97,7 @@ Download_ct(){
 }
 Service_ct(){
 	if [[ ${release} = "centos" ]]; then
-		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/cloudt_centos" -O /etc/init.d/cloudt; then
+		if ! wget --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/cloudt_centos" -O /etc/init.d/cloudt; then
 			echo -e "${Error} Cloud Torrent service management script download failed !" && exit 1
 		fi
 		chmod +x /etc/init.d/cloudt
@@ -139,7 +145,7 @@ Read_config(){
 }
 Set_host(){
 	echo -e "Please input Cloud Torrent monitoring domain name or IP (when you want to bind the domain name, remember to do a good job of domain name resolution, currently only supports http:// access, do not write http:// write domain name!)"
-	stty erase '^H' && read -p "(Default: 0.0.0.0 Monitor all IPs on the card):" ct_host
+	read -e -p "(Default: 0.0.0.0 Monitor all IPs on the card):" ct_host
 	[[ -z "${ct_host}" ]] && ct_host="0.0.0.0"
 	echo && echo "========================"
 	echo -e "	HOST : ${Red_background_prefix} ${ct_host} ${Font_color_suffix}"
@@ -149,9 +155,9 @@ Set_port(){
 	while true
 		do
 		echo -e "Please enter the Cloud Torrent listening port [1-65535] (if the domain is bound, then the proposed port 80)"
-		stty erase '^H' && read -p "(Default port: 80):" ct_port
+		read -e -p "(Default port: 80):" ct_port
 		[[ -z "${ct_port}" ]] && ct_port="80"
-		expr ${ct_port} + 0 &>/dev/null
+		echo $((${ct_port}+0)) &>/dev/null
 		if [[ $? -eq 0 ]]; then
 			if [[ ${ct_port} -ge 1 ]] && [[ ${ct_port} -le 65535 ]]; then
 				echo && echo "========================"
@@ -168,14 +174,14 @@ Set_port(){
 }
 Set_user(){
 	echo "Please enter your Cloud Torrent username"
-	stty erase '^H' && read -p "(Default username: user):" ct_user
+	read -e -p "(Default username: user):" ct_user
 	[[ -z "${ct_user}" ]] && ct_user="user"
 	echo && echo "========================"
 	echo -e "	Username : ${Red_background_prefix} ${ct_user} ${Font_color_suffix}"
 	echo "========================" && echo
 
 	echo "Please enter your Cloud Torrent password"
-	stty erase '^H' && read -p "(default password: doub.io):" ct_passwd
+	read -e -p "(default password: doub.io):" ct_passwd
 	[[ -z "${ct_passwd}" ]] && ct_passwd="doub.io"
 	echo && echo "========================"
 	echo -e "	Password : ${Red_background_prefix} ${ct_passwd} ${Font_color_suffix}"
@@ -183,7 +189,7 @@ Set_user(){
 }
 Set_title(){
 	echo "Please enter your Cloud Torrent title"
-	stty erase '^H' && read -p "(Default titl: alphaREKT):" ct_title
+	read -e -p "(Default titl: alphaREKT):" ct_title
 	[[ -z "${ct_title}" ]] && ct_title="alphaREKT"
 	echo && echo "========================"
 	echo -e "	Title : ${Red_background_prefix} ${ct_title} ${Font_color_suffix}"
@@ -192,7 +198,7 @@ Set_title(){
 Set_conf(){
 	Set_host
 	Set_port
-	stty erase '^H' && read -p "Do you want to set username and password ? [y/N] :" yn
+	read -e -p "Do you want to set username and password ? [y/N] :" yn
 	[[ -z "${yn}" ]] && yn="n"
 	if [[ ${yn} == [Yy] ]]; then
 		Set_user
@@ -213,6 +219,7 @@ Set_ct(){
 	Restart_ct
 }
 Install_ct(){
+    check_root
 	[[ -e ${ct_file} ]] && echo -e "${Error} Cloud Torrent already installed !" && exit 1
 	check_sys
 	echo -e "${Info} Start setting user config ..."
@@ -272,7 +279,7 @@ Uninstall_ct(){
 	check_installed_status
 	echo "Uninstall Cloud Torrent ? (y/N)"
 	echo
-	stty erase '^H' && read -p "(default: n):" unyn
+	read -e -p "(default: n):" unyn
 	[[ -z ${unyn} ]] && unyn="n"
 	if [[ ${unyn} == [Yy] ]]; then
 		check_pid
@@ -386,7 +393,7 @@ else
 	echo -e " Current status: ${Red_font_prefix}Not installed${Font_color_suffix}"
 fi
 echo
-stty erase '^H' && read -p " Please enter number [1-9]:" num
+read -e -p " Please enter number [1-9]:" num
 case "$num" in
 	1)
 	Install_ct
